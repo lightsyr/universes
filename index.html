@@ -38,19 +38,23 @@
       video.playsInline = true;
 
       navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { exact: "environment" } } // Usa a câmera traseira
+        video: { facingMode: { exact: "environment" } } // Usa a câmera traseira para visão 360º
       })
       .then((stream) => {
         video.srcObject = stream;
         video.play();
 
         const texture = new THREE.VideoTexture(video);
-        const geometry = new THREE.PlaneGeometry(10, 5.6); // Ajuste para proporção 16:9
+        texture.minFilter = THREE.LinearFilter;
+        texture.magFilter = THREE.LinearFilter;
+        texture.format = THREE.RGBFormat;
+
+        const geometry = new THREE.SphereGeometry(10, 64, 64); // Esfera maior para menos distorção
+        geometry.scale(-1, 1, 1); // Inverte a esfera para visão 360º
 
         const material = new THREE.MeshBasicMaterial({ map: texture });
-        const screen = new THREE.Mesh(geometry, material);
-        screen.position.set(0, 0, -5); // Coloca o plano à frente da câmera
-        scene.add(screen);
+        const sphere = new THREE.Mesh(geometry, material);
+        scene.add(sphere);
 
         camera.position.set(0, 0, 0);
 
