@@ -2,18 +2,41 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <title>VR com Vídeo da Câmera</title>
+    <title>VR com Vídeo da Câmera e Interface</title>
     <style>
       body {
         margin: 0;
         overflow: hidden;
+        font-family: sans-serif;
       }
       canvas {
         display: block;
       }
+      #interface {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        z-index: 10;
+      }
+      #meuBotao {
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      #meuBotao:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
     </style>
   </head>
   <body>
+    <div id="interface">
+      <button id="meuBotao">Clique aqui</button>
+    </div>
+
     <script type="module">
       import * as THREE from 'https://unpkg.com/three@0.150.1/build/three.module.js';
       import { VRButton } from 'https://unpkg.com/three@0.150.1/examples/jsm/webxr/VRButton.js';
@@ -33,12 +56,14 @@
       document.body.appendChild(VRButton.createButton(renderer));
 
       const video = document.createElement('video');
+      video.setAttribute('crossorigin', 'anonymous');
+      video.setAttribute('playsinline', '');
       video.autoplay = true;
       video.muted = true;
-      video.playsInline = true;
 
       navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { exact: "environment" } } // Usa a câmera traseira para visão 360º
+        video: { facingMode: { ideal: 'environment' } },
+        audio: false
       })
       .then((stream) => {
         video.srcObject = stream;
@@ -49,8 +74,8 @@
         texture.magFilter = THREE.LinearFilter;
         texture.format = THREE.RGBFormat;
 
-        const geometry = new THREE.SphereGeometry(10, 64, 64); // Esfera maior para menos distorção
-        geometry.scale(-1, 1, 1); // Inverte a esfera para visão 360º
+        const geometry = new THREE.SphereGeometry(10, 64, 64);
+        geometry.scale(-1, 1, 1); // Inversão para visualização interna
 
         const material = new THREE.MeshBasicMaterial({ map: texture });
         const sphere = new THREE.Mesh(geometry, material);
@@ -63,13 +88,19 @@
         });
       })
       .catch((error) => {
-        console.error("Erro ao acessar a câmera:", error);
+        console.error('Erro ao acessar a câmera:', error);
       });
 
+      // Responsividade
       window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+
+      // Botão
+      document.getElementById("meuBotao").addEventListener("click", () => {
+        alert("Olá mundo");
       });
     </script>
   </body>
