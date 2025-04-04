@@ -1,67 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <title>VR com câmera do celular</title>
-  <style>body { margin: 0; overflow: hidden; }</style>
+  <title>MindAR Image Tracking</title>
+  <style>
+    html,
+    body {
+      margin: 0;
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+    }
+
+    #container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+  </style>
 </head>
-<body>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.156.1/build/three.min.js"></script>
-  <script type="module">
-    import { VRButton } from 'https://cdn.jsdelivr.net/npm/three@0.156.1/examples/jsm/webxr/VRButton.js';
-
-    let scene, camera, renderer, videoTexture;
-
-    async function init() {
-      // Criar cena e câmera
-      scene = new THREE.Scene();
-      camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 1000);
-
-      // Renderer com suporte a VR
-      renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.xr.enabled = true;
-      document.body.appendChild(renderer.domElement);
-      document.body.appendChild(VRButton.createButton(renderer));
-
-      // Acessar câmera do celular
-      const video = document.createElement('video');
-      video.setAttribute('autoplay', '');
-      video.setAttribute('muted', '');
-      video.setAttribute('playsinline', '');
-
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-        video.srcObject = stream;
-        await video.play();
-      } catch (err) {
-        console.error('Erro ao acessar câmera:', err);
-        return;
+<script type="importmap">
+    {
+      "imports": {
+	"three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+	"three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+	"mindar-image-three":"https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"
       }
-
-      // Textura do vídeo da câmera
-      videoTexture = new THREE.VideoTexture(video);
-      videoTexture.minFilter = THREE.LinearFilter;
-      videoTexture.magFilter = THREE.LinearFilter;
-      videoTexture.format = THREE.RGBFormat;
-
-      // Criar "tela" com o vídeo em frente ao usuário
-      const geometry = new THREE.PlaneGeometry(4, 2.5); // proporção aproximada de vídeo
-      const material = new THREE.MeshBasicMaterial({ map: videoTexture });
-      const screen = new THREE.Mesh(geometry, material);
-      screen.position.set(0, 0, -3); // coloca a tela a 3 unidades na frente da câmera
-      scene.add(screen);
-
-      animate();
     }
+    </script>
 
-    function animate() {
-      renderer.setAnimationLoop(() => {
-        renderer.render(scene, camera);
-      });
-    }
-
-    init();
-  </script>
+<body>
+  <div id="container"></div>
+  <script type="module" src="script.js"></script>
 </body>
+
 </html>
